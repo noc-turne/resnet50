@@ -1,0 +1,25 @@
+stages:
+  - lint
+  - test
+
+
+lint:lint-C-python:
+  # 静态代码风格检查
+  stage: lint
+  tags:
+    - no_gpu
+  script:
+    - source /mnt/lustre/share/platform/env/pat2.0_v0.1.0b1
+    - flake8 -v
+  allow_failure: true
+
+test:python3:
+  # 只进行精度分析工具单元测试
+  stage: test
+  tags:
+    - use_gpu
+  script:
+    - export PYTHONPATH=./:$PYTHONPATH
+    - source /mnt/lustre/share/platform/env/pat2.0_v0.1.0b1
+    - pytest 
+  coverage: '/TOTAL +\d+ +\d+ +(\d+)%/'

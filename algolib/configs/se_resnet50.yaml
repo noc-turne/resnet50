@@ -1,0 +1,74 @@
+seed: 99
+net:
+    arch: se_resnet50
+    kwargs:
+        num_classes: 1000
+    #bn:
+    #    group_size: 1
+    #fp16:
+    #    scale_factor: 1024
+ 
+dataset:
+  train:
+    meta_file: /mnt/lustre/share_data/parrots_algolib/datasets/Imagenet/meta/train.txt
+    ceph_meta_file: s3://parrots_model_data/imagenet/images/meta/train.txt
+    image_dir: /mnt/lustre/share_data/parrots_algolib/datasets/Imagenet/train
+    ceph_image_dir: s3://parrots_model_data/imagenet/images/train/
+    reader: opencv
+    random_resize_crop: 224
+    colorjitter: [0.2, 0.2, 0.2, 0.1]
+    mean: [0.485, 0.456, 0.406]
+    std: [0.229, 0.224, 0.225]
+    mirror: True
+  test:
+    meta_file: /mnt/lustre/share_data/parrots_algolib/datasets/Imagenet/meta/val.txt
+    ceph_meta_file: s3://parrots_model_data/imagenet/images/meta/val.txt
+    image_dir: /mnt/lustre/share_data/parrots_algolib/datasets/Imagenet/val
+    ceph_image_dir: s3://parrots_model_data/imagenet/images/val/
+    reader: opencv
+    resize: 256
+    center_crop: [224, 224]
+    mean: [0.485, 0.456, 0.406]
+    std: [0.229, 0.224, 0.225]
+    mirror: False
+  batch_size: 32
+  workers: 4
+ 
+trainer:
+  max_epoch: 120
+  test_freq: 121
+  log_freq: 200
+  label_smooth:
+  optimizer:
+    type: SGD
+    kwargs:
+      lr: 0.1
+      momentum: 0.9
+      weight_decay: 0.0001
+  lr_scheduler:
+    warmup_epochs: 0
+    type: MultiStepLR
+    kwargs:
+      milestones: [30,60,90]
+      gamma: 0.1
+ 
+saver:
+  # pretrian_model: 
+  # resume_model: 
+  #load_pavi: True   # load pretrain/resume model from pavi
+  #save_pavi: True   # add snapshot to pavi
+  save_dir: algolib_gen/example/checkpoints/se_resnet50   # save checkpoint locally
+  save_epoch_freq: 120
+  save_latest: False
+  save_best: True
+  sync_bn_stats: False  
+ 
+#monitor:
+#  type: pavi
+#  kwargs:
+#    project: zhujuan_demo
+#    task: se_resnet50
+#    model: se_resnet50
+  # type: tensorboard
+  # kwargs:
+  #     logdir: tensorboard
